@@ -1,5 +1,7 @@
 # GPX Elevation Visualizer
 
+![image info](./sample_img.png)
+
 This tool allows you to visualize elevation data from GPX or KML files using color gradients reflecting the slope of the track.
 
 ## Features:
