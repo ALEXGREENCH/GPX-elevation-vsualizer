@@ -67,6 +67,27 @@ def classify(g):
     if g <= 25:    return "up_30"
     return "up_30"
 
+def parse_gx_coord(text):
+    parts = text.strip().split()
+    if len(parts) < 2:
+        return None
+    lon = float(parts[0])
+    lat = float(parts[1])
+    return (lat, lon)
+
+def parse_kml_coordinates(text):
+    pts = []
+    if not text:
+        return pts
+    for token in text.strip().split():
+        parts = token.split(",")
+        if len(parts) < 2:
+            continue
+        lon = float(parts[0])
+        lat = float(parts[1])
+        pts.append((lat, lon))
+    return pts
+
 def read_points(fn):
     pts = []
 
@@ -82,13 +103,12 @@ def read_points(fn):
 
     root = ET.parse(fn).getroot()
     for c in root.iter("{http://www.google.com/kml/ext/2.2}coord"):
-        lon, lat, _ = map(float, c.text.split())
-        pts.append((lat, lon))
+        p = parse_gx_coord(c.text or "")
+        if p:
+            pts.append(p)
     if not pts:
         for coords in root.iter(f"{{{KML_NS}}}coordinates"):
-            for l in coords.text.strip().splitlines():
-                lon, lat, _ = map(float, l.split(","))
-                pts.append((lat, lon))
+            pts.extend(parse_kml_coordinates(coords.text or ""))
     print("[i] KML:", len(pts))
     return pts
 
